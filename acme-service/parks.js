@@ -1,5 +1,4 @@
 import crypto from "crypto";
-import flattenDeep from "lodash.flattendeep";
 
 export const parksByState = {
   AK: [

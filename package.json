@@ -17,7 +17,6 @@
     "@slack/bolt": "git://github.com/selfcontained/bolt.git#d4ec38c",
     "axios": "^0.19.2",
     "body-parser": "^1.19.0",
-    "lodash.flattendeep": "^4.4.0",
     "lodash.get": "^4.4.2",
     "redis": "^3.0.2"
   },
