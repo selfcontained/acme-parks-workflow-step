@@ -85,7 +85,7 @@ export const registerFindParkStep = function (app, data) {
         credentialId,
         userName: userInfo.user.real_name,
         userImage: userInfo.user.profile.image_192,
-        parkUser: get(inputs, "park_user_id.value"),
+        parkUserId: get(inputs, "park_user_id.value"),
       });
 
       app.logger.info("Opening step form view");
