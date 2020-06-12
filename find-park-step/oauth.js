@@ -1,10 +1,10 @@
 import axios from "axios";
-import { findClientById } from "../acme-service/constants.js";
 import { renderWorkflowStep, renderUpdateStatusForm } from "./view.js";
 
 const HOST = process.env.HOST;
 // This is derived to facilitate an example authentication flow
-const ACME_CLIENT_ID = "ACME_WORKFLOW_CLIENT";
+const ACME_CLIENT_ID = process.env.ACME_CLIENT_ID;
+const ACME_CLIENT_SECRET = process.env.ACME_CLIENT_SECRET;
 const OAUTH_CALLBACK_URL = `/auth/callback`;
 
 // Endpoint hosted by our Slack App to handle receiving the oauth callback and exchanging our code for token
@@ -13,14 +13,11 @@ export const buildOAuthRedirectURL = () => {
 };
 
 export const buildOAuthURL = ({ state }) => {
-  // We're gonna just reach in and grab some info about our registered client, normally this would most likely live in environment config
-  const client = findClientById(ACME_CLIENT_ID);
-
   const redirectURI = buildOAuthRedirectURL();
   const oauthState = encodeURIComponent(JSON.stringify(state));
 
   // Since we're also hosting our sample Acme service and it's "OAuth" endpoints, we'll point to that here
-  return `${HOST}/oauth/authorize?client_id=${client.id}&redirect_uri=${redirectURI}&state=${oauthState}`;
+  return `${HOST}/oauth/authorize?client_id=${ACME_CLIENT_ID}&redirect_uri=${redirectURI}&state=${oauthState}`;
 };
 
 export const registerOAuthCallback = (app, data) => {
@@ -41,9 +38,6 @@ export const registerOAuthCallback = (app, data) => {
         .send("There was a problem connecting your account");
     }
 
-    // We're gonna just reach in and grab some info about our registered client, normally this would most likely live in environment config
-    const client = findClientById(ACME_CLIENT_ID);
-
     try {
       // Make a request to exchange our code for our access token
       const result = await axios({
@@ -51,8 +45,8 @@ export const registerOAuthCallback = (app, data) => {
         url: `${HOST}/oauth/access`,
         data: {
           code,
-          client_id: client.id,
-          client_secret: client.secret,
+          client_id: ACME_CLIENT_ID,
+          client_secret: ACME_CLIENT_SECRET,
         },
       });
 

@@ -103,5 +103,6 @@ export const findParkMatchByName = (name) => {
   // Grab an index from the parks that is mapped to our name
   const idx = Math.floor(quotient * parks.length);
 
-  return parks[idx];
+  // Return the park - fallback to the last park in case we got the math wrong
+  return parks[idx] || parks[parks.length - 1];
 };

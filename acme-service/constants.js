@@ -1,7 +1,7 @@
 // Some static values to facilitate a fake token exchange when connecting an account
 const VALID_CLIENTS = [
   {
-    id: "ACME_WORKFLOW_CLIENT",
+    id: "2vT8ww4WWJ8yGzENcVOL",
     secret: "VHKu2JDOacQVGcOWmAZr",
     name: "Acme Slack App",
     exchange_code: "fnqQPmlaFX",
