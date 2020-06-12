@@ -13,10 +13,10 @@ const app = new Bolt.App({
 const data = configureData(app);
 data.on("error", (err) => app.logger.error("Connection Error", err));
 
+registerFindParkStep(app, data);
+
 // Attach our Acme Service API to the same express app Bolt is using
 configureAcmeServiceApi(app.receiver.app);
-
-registerFindParkStep(app, data);
 
 app.error((error) => {
   // Check the details of the error to handle cases where you should retry sending a message or stop the app

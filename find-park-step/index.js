@@ -60,7 +60,7 @@ export const registerFindParkStep = function (app, data) {
         });
 
         app.logger.info("Opening connect account view");
-        await app.client.views.open({
+        return await app.client.views.open({
           token: context.botToken,
           trigger_id: body.trigger_id,
           view,
@@ -96,32 +96,6 @@ export const registerFindParkStep = function (app, data) {
       });
     }
   );
-
-  // Nothing to do here, it's a link button, but need to ack it
-  app.action("connect_account_button", async ({ ack }) => ack());
-
-  // Delete the credential and transition to the connect account view
-  app.action(ACTION_DISCONNECT, async ({ ack, body, context }) => {
-    ack();
-
-    const { view, user, team } = body;
-    const currentUserId = user.id;
-    const currentTeamId = team.id;
-    const externalViewId = view.external_id;
-
-    const updatedView = renderConnectAccountView({
-      userId: currentUserId,
-      teamId: currentTeamId,
-      // Set it to the same external view id of the current view so we update it
-      externalViewId,
-    });
-
-    await app.client.views.update({
-      token: context.botToken,
-      view_id: view.id,
-      view: updatedView,
-    });
-  });
 
   // Handle saving of step config
   app.view(VIEW_CALLBACK_ID, async ({ ack, view, body, context }) => {
@@ -244,5 +218,36 @@ export const registerFindParkStep = function (app, data) {
         error: e.message,
       });
     }
+  });
+
+  // Nothing to do here, it's a link button, but need to ack it
+  app.action("connect_account_button", async ({ ack }) => ack());
+
+  // Delete the credential and transition to the connect account view
+  app.action(ACTION_DISCONNECT, async ({ ack, body, context }) => {
+    ack();
+
+    const { view, user, team } = body;
+    const currentUserId = user.id;
+    const currentTeamId = team.id;
+    const externalViewId = view.external_id;
+
+    const { credentialId } = parseStateFromView(view);
+    if (credentialId) {
+      await data.del(credentialId);
+    }
+
+    const updatedView = renderConnectAccountView({
+      userId: currentUserId,
+      teamId: currentTeamId,
+      // Set it to the same external view id of the current view so we update it
+      externalViewId,
+    });
+
+    await app.client.views.update({
+      token: context.botToken,
+      view_id: view.id,
+      view: updatedView,
+    });
   });
 };
