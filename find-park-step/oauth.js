@@ -1,24 +1,11 @@
 import axios from "axios";
-import { renderWorkflowStep, renderUpdateStatusForm } from "./view.js";
+import { renderStepFormView } from "./view.js";
 
 const HOST = process.env.HOST;
 // This is derived to facilitate an example authentication flow
 const ACME_CLIENT_ID = process.env.ACME_CLIENT_ID;
 const ACME_CLIENT_SECRET = process.env.ACME_CLIENT_SECRET;
 const OAUTH_CALLBACK_URL = `/auth/callback`;
-
-// Endpoint hosted by our Slack App to handle receiving the oauth callback and exchanging our code for token
-export const buildOAuthRedirectURL = () => {
-  return `${HOST}${OAUTH_CALLBACK_URL}`;
-};
-
-export const buildOAuthURL = ({ state }) => {
-  const redirectURI = buildOAuthRedirectURL();
-  const oauthState = encodeURIComponent(JSON.stringify(state));
-
-  // Since we're also hosting our sample Acme service and it's "OAuth" endpoints, we'll point to that here
-  return `${HOST}/oauth/authorize?client_id=${ACME_CLIENT_ID}&redirect_uri=${redirectURI}&state=${oauthState}`;
-};
 
 export const registerOAuthCallback = (app, data) => {
   const expressApp = app.receiver.app;
@@ -53,6 +40,7 @@ export const registerOAuthCallback = (app, data) => {
       const { access_token } = result.data;
       const { userId, teamId, externalViewId } = state;
 
+      // Store the credential id
       const credentialId = data.getCredentialId({ userId, teamId });
       await data.set(credentialId, access_token);
 
@@ -62,28 +50,18 @@ export const registerOAuthCallback = (app, data) => {
         user: userId,
       });
 
-      // Render the new form view w/ the necessary state
-      const viewState = {
-        // Set to the current user
-        userId,
-        // TODO: probably don't need this here
-        credentialId,
-        userName: userInfo.user.real_name,
-        userImage: userInfo.user.profile.image_192,
-        parkUser: "",
-      };
-      const view = renderWorkflowStep(
-        viewState,
-        renderUpdateStatusForm(viewState)
-      );
-
-      // Update the current view via the api w/ new one
+      // Update the current block-kit view with the step form
       await app.client.views.update({
         token: process.env.SLACK_BOT_TOKEN,
         external_id: externalViewId,
-        view: {
-          ...view,
-        },
+        view: renderStepFormView({
+          externalViewId,
+          authUserId: userId,
+          credentialId,
+          userName: userInfo.user.real_name,
+          userImage: userInfo.user.profile.image_192,
+          parkUserId: "",
+        }),
       });
 
       res
@@ -97,4 +75,17 @@ export const registerOAuthCallback = (app, data) => {
       res.status(500).send("There was a problem connecting your account");
     }
   });
+};
+
+// Endpoint hosted by our Slack App to handle receiving the oauth callback and exchanging our code for token
+export const buildOAuthRedirectURL = () => {
+  return `${HOST}${OAUTH_CALLBACK_URL}`;
+};
+
+export const buildOAuthURL = (state) => {
+  const redirectURI = buildOAuthRedirectURL();
+  const oauthState = encodeURIComponent(JSON.stringify(state));
+
+  // Since we're also hosting our sample Acme service and it's "OAuth" endpoints, we'll point to that here
+  return `${HOST}/oauth/authorize?client_id=${ACME_CLIENT_ID}&redirect_uri=${redirectURI}&state=${oauthState}`;
 };
