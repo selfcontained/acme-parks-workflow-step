@@ -14,13 +14,13 @@
   "author": "Brad Harris",
   "license": "MIT",
   "dependencies": {
-    "@slack/bolt": "git://github.com/selfcontained/bolt.git#d4ec38c",
+    "@slack/bolt": "^2.1.1-workflowStepsBeta.1",
     "axios": "^0.19.2",
     "body-parser": "^1.19.0",
     "lodash.get": "^4.4.2",
     "redis": "^3.0.2"
   },
   "devDependencies": {
-    "nodemon": "^1.19.4"
+    "nodemon": "^2.0.4"
   }
 }
