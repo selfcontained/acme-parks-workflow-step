@@ -14,8 +14,8 @@
   "author": "Brad Harris",
   "license": "MIT",
   "dependencies": {
-    "@slack/bolt": "^2.1.1-workflowStepsBeta.1",
-    "axios": "^0.19.2",
+    "@slack/bolt": "^4.2.1",
+    "axios": "^1.8.2",
     "body-parser": "^1.19.0",
     "lodash.get": "^4.4.2",
     "redis": "^3.0.2"
